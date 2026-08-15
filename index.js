@@ -1,3 +1,14 @@
+/* Full index.js — final merged version
+ *
+ * - Uses Open-Meteo for forecasts (including sunshine/sunset) always.
+ * - Uses NWS for current observation inside the US (shows "Loading..." until NWS arrives).
+ * - Truncates condition text with "..." in compact mode and recomputes on hover/resize so it expands when widget grows.
+ * - Badge shows "NWS" when NWS is the current provider, otherwise "Open-Meteo".
+ * - Icons update immediately after data changes (NWS or Open-Meteo).
+ *
+ * Paste this as a complete index.js in your project.
+ */
+
 let initialZoom = 15;
 let mapLoaded = false;
 let map;
@@ -79,6 +90,9 @@ function initMap(lng, lat) {
       updateLocalTimezoneForCenter();
     }, 400);
   });
+
+  // attach hover recompute for ellipsis behavior
+  attachWidgetHoverRecompute();
 
   updateWeatherForCenter();
   updateLocalTimezoneForCenter();
@@ -516,16 +530,20 @@ crosshairToggle.addEventListener('click', () => {
   crosshairToggle.innerText = isActive ? "Crosshair: ON" : "Crosshair: OFF";
 });
 
+/* Full SVG icon set (from pasted2.txt) — used by getWeatherInfo */
 const weatherSVGs = {
-  sun: `<svg viewBox="0 0 24 24" fill="none"><path fill="#ffc905" d="M11 1a1 1 0 1 1 2 0v2a1 1 0 1 1-2 0z"></path><path fill="#ffc905" fill-rule="evenodd" clip-rule="evenodd" d="M18 12a6 6 0 1 1-12 0 6 6 0 0 1 12 0m-9.938 0a3.938 3.938 0 1 0 7.876 0 3.938 3.938 0 0 0-7.876 0"></path><path fill="#ffc905" d="M20.485 3.515a1 1 0 0 0-1.414 0l-1.414 1.414a1 1 0 0 0 1.414 1.414l1.414-1.414a1 1 0 0 0 0-1.414M1 13a1 1 0 1 1 0-2h2a1 1 0 1 1 0 2zm2.515-9.485a1 1 0 0 0 0 1.414l1.414 1.414A1 1 0 0 0 6.343 4.93L4.93 3.515a1 1 0 0 0-1.414 0M11 21a1 1 0 1 1 2 0v2a1 1 0 1 1-2 0zm-4.657-3.343a1 1 0 0 0-1.414 0L3.515 19.07a1 1 0 1 0 1.414 1.414l1.414-1.414a1 1 0 0 0 0-1.414M21 13a1 1 0 1 1 0-2h2a1 1 0 1 1 0 2zm-3.343 4.657a1 1 0 0 0 0 1.414l1.414 1.414a1 1 0 0 0 1.414-1.414l-1.414-1.414a1 1 0 0 0-1.414 0"></path></svg>`,
-  sunCloud: `<svg viewBox="0 0 24 24" fill="none" stroke="#ffc905" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.417 18a3.75 3.75 0 1 1 1.009-7.363 5.001 5.001 0 0 1 9.342 1.55A2.917 2.917 0 0 1 16.417 18z"></path><path stroke-linecap="butt" d="M18.034 12.832A4 4 0 0 0 20.882 9 4 4 0 0 0 13 8.032"></path></svg>`,
-  cloud: `<svg viewBox="0 0 24 24" fill="none" stroke="#8f8f8f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10c0 3.866 3.022 7 6.75 7h7.5c2.071 0 3.75-1.741 3.75-3.889s-1.679-3.889-3.75-3.889c-.42 0-.815-.284-.9-.695C15.698 5.368 12.99 3 9.75 3 6.022 3 3 6.134 3 10Z"></path></svg>`,
-  cloudNight: `<svg viewBox="0 0 24 24" fill="none" stroke="#ad5cff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11.654 5.618A8.97 8.97 0 0 1 18 3c.983 0 1.93.156 2.815.448A10 10 0 0 0 16 12a10 10 0 0 0 4.813 8.552c-.885.29-1.83.448-2.813.448-1.85 0-3.57-.558-5-1.516M5.7 16C4.209 16 3 14.802 3 13.325c0-1.225.9-2.356 2.25-2.575C5.673 9.743 6.676 9 7.845 9a2.8 2.8 0 0 1 2.805 2.625c.795.347 1.35 1.2 1.35 2.123A2.25 2.25 0 0 1 9.75 16z"></path></svg>`,
-  fog: `<svg viewBox="0 0 24 24" fill="none" stroke="#8f8f8f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M3 14h18M6 10h12M6 18h12"></path></svg>`,
-  rain: `<svg viewBox="0 0 24 24" fill="none" stroke="#427bff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.271 16C4.311 14.775 3 12.546 3 10c0-3.866 3.022-7 6.75-7 3.24 0 5.948 2.368 6.6 5.527.085.41.48.695.9.695v0c2.071 0 3.75 1.741 3.75 3.89A3.94 3.94 0 0 1 19.76 16"></path><path d="M10 15v5m3-5v6m3-6v5"></path></svg>`,
-  snow: `<svg viewBox="0 0 24 24" fill="none" stroke="#8f8f8f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.271 16C4.311 14.775 3 12.546 3 10c0-3.866 3.022-7 6.75-7 3.24 0 5.948 2.368 6.6 5.527.085.41.48.695.9.695v0c2.071 0 3.75 1.741 3.75 3.89A3.94 3.94 0 0 1 19.76 16"></path><path d="M10 17.03V17m0-2.97V14m6 3.03V17m0-2.97V14m-3 4.03V18m0-2.97V15m-3 5.03V20m6 .03V20m-3 1.03V21"></path></svg>`,
-  thunder: `<svg viewBox="0 0 24 24" fill="none" stroke="#ffc905" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.271 16C4.311 14.775 3 12.546 3 10c0-3.866 3.022-7 6.75-7 3.24 0 5.948 2.368 6.6 5.527.085.41.48.695.9.695v0c2.071 0 3.75 1.741 3.75 3.89A3.94 3.94 0 0 1 19.76 16"></path><path d="m13 13-1.869 3.738v0a.18.18 0 0 0 .162.262h3.416c.134 0 .22.14.16.26v0L13 21"></path></svg>`,
-  moon: `<svg viewBox="0 0 24 24" fill="none" stroke="#ad5cff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 6V3m5.5 9V7m-4-2.5h-3m9.5 5h-5m-.445 7.315a8.3 8.3 0 0 0 3.445-.74A8.37 8.37 0 1 1 7.925 5a8.37 8.37 0 0 0 7.63 11.815"></path></svg>`
+  cloud: `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M3 13.6493C3 16.6044 5.41766 19 8.4 19L16.5 19C18.9853 19 21 16.9839 21 14.4969C21 12.6503 19.8893 10.9449 18.3 10.25C18.1317 7.32251 15.684 5 12.6893 5C10.3514 5 8.34694 6.48637 7.5 8.5C4.8 8.9375 3 11.2001 3 13.6493Z" stroke="#8f8f8f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> </g></svg>`,
+  drizzle: `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M6.271 16C4.311 14.775 3 12.546 3 10c0-3.866 3.022-7 6.75-7 3.24 0 5.948 2.368 6.6 5.527.085.41.48.695.9.695v0c2.071 0 3.75 1.741 3.75 3.89A3.94 3.94 0 0 1 19.76 16" stroke="#8f8f8f" stroke-width="2"/><path d="M10 15v1m3 0v1m-3 2v1m3 0v1m3-2v1m0-5v1" stroke="#427bff" stroke-width="2"/></svg>`,
+  thunder: `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g stroke-width="0"/><g stroke-linecap="round" stroke-linejoin="round"/><path d="M6.271 16C4.311 14.775 3 12.546 3 10c0-3.866 3.022-7 6.75-7 3.24 0 5.948 2.368 6.6 5.527.085.41.48.695.9.695v0c2.071 0 3.75 1.741 3.75 3.89A3.94 3.94 0 0 1 19.76 16" stroke="#8f8f8f" stroke-width="2" stroke-linecap="round"/><path d="m13 13-1.869 3.738v0a.18.18 0 0 0 .162.262h3.416c.134 0 .22.14.16.26v0L13 21" stroke="#ffc905" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+  snow: `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g stroke-width="0"/><g stroke-linecap="round" stroke-linejoin="round"/><g stroke="#8f8f8f" stroke-width="2" stroke-linecap="round"><path d="M6.271 16C4.311 14.775 3 12.546 3 10c0-3.866 3.022-7 6.75-7 3.24 0 5.948 2.368 6.6 5.527.085.41.48.695.9.695v0c2.071 0 3.75 1.741 3.75 3.89A3.94 3.94 0 0 1 19.76 16"/><path d="M10 17.03V17m0-2.97V14m6 3.03V17m0-2.97V14m-3 4.03V18m0-2.97V15m-3 5.03V20m6 .03V20m-3 1.03V21" stroke-linejoin="round"/></g></svg>`,
+  rain: `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g stroke-width="0"/><g stroke-linecap="round" stroke-linejoin="round"/><path d="M6.271 16C4.311 14.775 3 12.546 3 10c0-3.866 3.022-7 6.75-7 3.24 0 5.948 2.368 6.6 5.527.085.41.48.695.9.695v0c2.071 0 3.75 1.741 3.75 3.89A3.94 3.94 0 0 1 19.76 16" fill="none" stroke="#8f8f8f" stroke-width="2" stroke-linecap="round"/><path d="M10 15v5m3-5v6m3-6v5" fill="none" stroke="#427bff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+  fog: `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g stroke-width="0"/><g stroke-linecap="round" stroke-linejoin="round"/><path d="M3 6h18M3 14h18M6 10h12M6 18h12" stroke="#8f8f8f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+  sunCloud: `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-labelledby="sunCloudIconTitle" fill="none" stroke-linecap="round" stroke-linejoin="round"><title>Sun with clouds</title><defs><mask id="a"><path fill="#fff" d="M0 0h24v24H0z"/><path d="M6.417 18a3.75 3.75 0 1 1 1.009-7.363 5.001 5.001 0 0 1 9.342 1.55A2.917 2.917 0 0 1 16.417 18z" fill="#000"/></mask></defs><path d="M18.034 12.832A4 4 0 0 0 20.882 9 4 4 0 0 0 13 8.032" stroke="#ffc905" stroke-width="2" mask="url(#a)"/><path d="M6.417 18a3.75 3.75 0 1 1 1.009-7.363 5.001 5.001 0 0 1 9.342 1.55A2.917 2.917 0 0 1 16.417 18z" stroke="#8f8f8f" stroke-width="2"/></svg>`,
+  sun: `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g stroke-width="0"/><g stroke-linecap="round" stroke-linejoin="round"/><g fill="#ffc905"><path d="M11 1a1 1 0 1 1 2 0v2a1 1 0 1 1-2 0z"/><path fill-rule="evenodd" clip-rule="evenodd" d="M18 12a6 6 0 1 1-12 0 6 6 0 0 1 12 0m-9.938 0a3.938 3.938 0 1 0 7.876 0 3.938 3.938 0 0 0-7.876 0"/><path d="M20.485 3.515a1 1 0 0 0-1.414 0l-1.414 1.414a1 1 0 0 0 1.414 1.414l1.414-1.414a1 1 0 0 0 0-1.414M1 13a1 1 0 1 1 0-2h2a1 1 0 1 1 0 2zm2.515-9.485a1 1 0 0 0 0 1.414l1.414 1.414A1 1 0 0 0 6.343 4.93L4.93 3.515a1 1 0 0 0-1.414 0M11 21a1 1 0 1 1 2 0v2a1 1 0 1 1-2 0zm-4.657-3.343a1 1 0 0 0-1.414 0L3.515 19.07a1 1 0 1 0 1.414 1.414l1.414-1.414a1 1 0 0 0 0-1.414M21 13a1 1 0 1 1 0-2h2a1 1 0 1 1 0 2zm-3.343 4.657a1 1 0 0 0 0 1.414l1.414 1.414a1 1 0 0 0 1.414-1.414l-1.414-1.414a1 1 0 0 0-1.414 0"/></g></svg>`,
+  cloudNight: `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g stroke-width="0"/><g stroke-linecap="round" stroke-linejoin="round"/><path d="M21 15.502A6.502 6.502 0 0 1 21 3.5a6.5 6.5 0 0 0-8.5 3.496M6.9 21C4.746 21 3 19.289 3 17.178c0-1.75 1.3-3.366 3.25-3.678.612-1.438 2.06-2.5 3.748-2.5 2.163 0 3.93 1.659 4.052 3.75 1.148.496 1.95 1.715 1.95 3.034C16 19.56 14.545 21 12.75 21z" stroke="#ad5cff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+  moon: `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g stroke-width="0"/><g stroke-linecap="round" stroke-linejoin="round"/><path d="M3.32 11.684a9 9 0 0 0 17.357 3.348A9 9 0 0 1 8.32 6.683c0-1.18.23-2.32.644-3.353a9 9 0 0 0-5.645 8.354" stroke="#ad5cff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+  sunriseIcon: `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="m6 12-1-1m13 1 1-1" stroke="#ffc905" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 3v7m0 0 3-3m-3 3L9 7" stroke="red" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M7 18a5 5 0 0 1 10 0" stroke="#ffc905" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 18h18M5 21h14" stroke="#427bff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+  sunsetIcon: `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="m6 12-1-1m13 1 1-1" stroke="#ffc905" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 3v7m0 0 3-3m-3 3L9 7" stroke="red" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M7 18a5 5 0 0 1 10 0" stroke="#ffc905" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 18h18M5 21h14" stroke="#427bff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`
 };
 
 function getWeatherInfo(code, isNight = false) {
@@ -563,6 +581,21 @@ function getWeatherInfo(code, isNight = false) {
   };
 }
 
+function iconFromNwsText(text, isNight = false) {
+  if (!text || typeof text !== 'string') {
+    return isNight ? weatherSVGs.cloudNight : weatherSVGs.cloud;
+  }
+  const t = text.toLowerCase();
+  if (t.includes('thunder') || t.includes('tstms') || t.includes('thund')) return weatherSVGs.thunder;
+  if (t.includes('drizzle')) return weatherSVGs.drizzle;
+  if (t.includes('rain') || t.includes('showers') || t.includes('shower')) return weatherSVGs.rain;
+  if (t.includes('snow') || t.includes('sleet') || t.includes('blizzard')) return weatherSVGs.snow;
+  if (t.includes('fog') || t.includes('mist') || t.includes('haze')) return weatherSVGs.fog;
+  if (t.includes('clear') || t.includes('sun') || t.includes('sunny')) return isNight ? weatherSVGs.moon : weatherSVGs.sun;
+  if (t.includes('partly') || t.includes('cloud') || t.includes('overcast')) return isNight ? weatherSVGs.cloudNight : weatherSVGs.cloud;
+  return isNight ? weatherSVGs.cloudNight : weatherSVGs.cloud;
+}
+
 function getWindDirection(degrees) {
   const directions = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW'];
   const index = Math.round((degrees % 360) / 22.5);
@@ -582,46 +615,355 @@ let forecastWeather = null;
 let isImperial = false;
 let fetchTimeout = null;
 
+// Rendering state
+let lastWeatherSource = 'open-meteo'; // 'open-meteo' | 'nws' | 'nws_pending' | 'nws_failed'
+let lastWeatherCode = null;
+let lastIsNight = false;
+let lastNwsText = null;
+
+/* Helper used for NWS fetches (throws on non-OK) */
+async function tryFetchJson(url, opts = {}) {
+  const res = await fetch(url, opts);
+  if (!res.ok) {
+    const text = await res.text().catch(() => '');
+    const err = new Error(`Fetch failed: ${res.status} ${res.statusText} for ${url}`);
+    err.status = res.status;
+    err.body = text;
+    throw err;
+  }
+  return res.json();
+}
+
+/* Attempt to fetch a latest NWS observation for lat, lon.
+ * Accepts optional pre-fetched points object.
+ */
+async function fetchNwsObservation(lat, lon, pointsData = null) {
+  let points = pointsData;
+  if (!points) {
+    const pointsUrl = `https://api.weather.gov/points/${lat},${lon}`;
+    points = await tryFetchJson(pointsUrl, {
+      headers: { 'Accept': 'application/geo+json' }
+    });
+  }
+
+  const relLoc = points.properties && points.properties.relativeLocation && points.properties.relativeLocation.properties;
+  const stateName = relLoc && (relLoc.state || relLoc.stateCode || relLoc.state_name);
+  if (!stateName) {
+    const err = new Error('NWS: unable to determine state from points response (not in US?)');
+    err.code = 'NWS_NO_STATE';
+    throw err;
+  }
+
+  const stationsUrl = points.properties && points.properties.observationStations;
+  if (!stationsUrl) {
+    const err = new Error('NWS: no observationStations URL');
+    err.code = 'NWS_NO_STATIONS_URL';
+    throw err;
+  }
+
+  const stations = await tryFetchJson(stationsUrl, {
+    headers: { 'Accept': 'application/geo+json' }
+  });
+
+  let stationResourceUrl = null;
+  if (Array.isArray(stations.features) && stations.features.length) {
+    stationResourceUrl = stations.features[0].id || (stations.features[0].properties && stations.features[0].properties.stationIdentifier && `https://api.weather.gov/stations/${stations.features[0].properties.stationIdentifier}`);
+  } else if (Array.isArray(stations) && stations.length) {
+    const s0 = stations[0];
+    if (s0 && s0.stationIdentifier) stationResourceUrl = `https://api.weather.gov/stations/${s0.stationIdentifier}`;
+  }
+
+  if (!stationResourceUrl) {
+    const err = new Error('NWS: no usable station found');
+    err.code = 'NWS_NO_STATION';
+    throw err;
+  }
+
+  const obsUrl = stationResourceUrl.replace(/\/+$/,'') + '/observations/latest';
+  const observation = await tryFetchJson(obsUrl, {
+    headers: { 'Accept': 'application/geo+json' }
+  });
+
+  const props = observation.properties || {};
+  const tempC = (props.temperature && typeof props.temperature.value === 'number') ? Number(props.temperature.value) : null;
+  const apparentC = (props.apparentTemperature && typeof props.apparentTemperature.value === 'number') ? Number(props.apparentTemperature.value) : null;
+  const windSpeedMps = (props.windSpeed && typeof props.windSpeed.value === 'number') ? Number(props.windSpeed.value) : null;
+  const windKmh = windSpeedMps == null ? null : Number((windSpeedMps * 3.6).toFixed(1));
+  const windDirDeg = (props.windDirection && typeof props.windDirection.value === 'number') ? Number(props.windDirection.value) : (props.windDirection && props.windDirection.value ? Number(props.windDirection.value) : null);
+  const textDesc = props.textDescription || (props.text && typeof props.text === 'string' ? props.text : null);
+  const humidity = (props.relativeHumidity && typeof props.relativeHumidity.value === 'number') ? Number(props.relativeHumidity.value) : null;
+  let precipitation = null;
+  if (props.precipitationLastHour && typeof props.precipitationLastHour.value === 'number') precipitation = props.precipitationLastHour.value;
+  const observedAt = props.timestamp || props.observation_time || null;
+
+  return { tempC, apparentC, windKmh, windDirDeg, textDesc, humidity, precipitation, observedAt, points };
+}
+
+/* Truncate condition text based on current widget width */
+function setConditionTextWithEllipsis(fullText) {
+  const condEl = document.getElementById('w-cond');
+  const tempEl = document.querySelector('.weather-temp');
+  const widgetEl = document.getElementById('weather-widget');
+  if (!condEl || !tempEl || !widgetEl) {
+    if (condEl) condEl.innerText = fullText;
+    return;
+  }
+
+  condEl.title = fullText;
+
+  const widgetStyles = window.getComputedStyle(widgetEl);
+  const widgetPaddingLeft = parseFloat(widgetStyles.paddingLeft || 0);
+  const widgetPaddingRight = parseFloat(widgetStyles.paddingRight || 0);
+  const widgetWidth = widgetEl.clientWidth - widgetPaddingLeft - widgetPaddingRight;
+
+  const tempRect = tempEl.getBoundingClientRect();
+  const iconWidth = 36;
+  const spacingGap = 12;
+  const extraBuffer = 30;
+  const available = Math.max(20, widgetWidth - iconWidth - tempRect.width - spacingGap - extraBuffer);
+
+  const avgCharPx = 7;
+  const maxChars = Math.max(8, Math.floor(available / avgCharPx));
+
+  if (fullText.length > maxChars) {
+    const short = fullText.slice(0, Math.max(0, maxChars - 1)) + '…';
+    condEl.innerText = short;
+  } else {
+    condEl.innerText = fullText;
+  }
+}
+
+/* Update badge text to reflect data source */
+function updateSourceBadge() {
+  const titleEl = document.querySelector('.weather-title');
+  if (!titleEl) return;
+
+  let badge = titleEl.querySelector('.weather-source-badge');
+  const badgeText = (lastWeatherSource === 'nws') ? 'NWS' : 'Open-Meteo';
+
+  if (!badge) {
+    badge = document.createElement('span');
+    badge.className = 'weather-source-badge';
+    badge.style.marginLeft = '6px';
+    badge.style.fontSize = '10px';
+    badge.style.padding = '2px 6px';
+    badge.style.borderRadius = '10px';
+    badge.style.background = 'rgba(0,0,0,0.06)';
+    badge.style.color = '#222';
+    titleEl.appendChild(badge);
+  }
+  badge.innerText = badgeText;
+}
+
+/* Central rendering of icon & condition (uses NWS text if available when lastWeatherSource==='nws') */
+function updateIconAndConditionDisplay() {
+  const isNight = lastIsNight;
+  const condEl = document.getElementById('w-cond');
+  const iconEl = document.getElementById('w-icon');
+
+  let displayText = '';
+  let svgHtml = '';
+
+  if (lastWeatherSource === 'nws' && lastNwsText) {
+    displayText = lastNwsText;
+    svgHtml = iconFromNwsText(lastNwsText, isNight);
+  } else if (lastWeatherSource === 'nws_pending') {
+    displayText = 'Loading...';
+    svgHtml = '';
+  } else if (lastWeatherCode != null) {
+    const info = getWeatherInfo(lastWeatherCode, isNight);
+    displayText = info.text;
+    svgHtml = info.svg;
+  } else {
+    displayText = condEl ? condEl.innerText || '' : '';
+    svgHtml = iconEl ? iconEl.innerHTML : '';
+  }
+
+  if (iconEl) iconEl.innerHTML = svgHtml || '';
+  setConditionTextWithEllipsis(displayText);
+  updateSourceBadge();
+}
+
+/* Recompute truncation when widget expands/collapses or window resizes */
+function attachWidgetHoverRecompute() {
+  const widget = document.getElementById('weather-widget');
+  if (!widget) return;
+
+  const recompute = () => {
+    updateIconAndConditionDisplay();
+    // run after CSS transition finishes (transition is ~300ms)
+    setTimeout(updateIconAndConditionDisplay, 360);
+  };
+
+  widget.addEventListener('mouseenter', recompute);
+  widget.addEventListener('mouseleave', recompute);
+  window.addEventListener('resize', () => {
+    updateIconAndConditionDisplay();
+    setTimeout(updateIconAndConditionDisplay, 200);
+  });
+}
+
+/* Main update flow:
+ * - Always fetch Open-Meteo for forecasts/sun times.
+ * - If inside US: show Loading... and attempt NWS observation; only show NWS when it arrives.
+ * - If not in US: use Open-Meteo current values.
+ */
 async function updateWeatherForCenter() {
   if (!map) return;
   const center = map.getCenter();
-  const lat = center.lat.toFixed(4);
-  const lng = center.lng.toFixed(4);
+  const latFull = center.lat;
+  const lonFull = center.lng;
+  const lat = latFull.toFixed(4);
+  const lng = lonFull.toFixed(4);
 
+  // Fetch Open-Meteo for forecasts + sunrise/sunset (always)
+  let openData = null;
   try {
-    const response = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,wind_speed_10m,wind_direction_10m,is_day&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max,wind_speed_10m_max&forecast_days=16&timezone=auto`);
-    const data = await response.json();
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,wind_speed_10m,wind_direction_10m,is_day&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max,wind_speed_10m_max,sunrise,sunset&timezone=auto`;
+    const rsp = await fetch(url);
+    openData = await rsp.json();
+  } catch (e) {
+    forecastWeather = null;
+  }
 
-    if (data && data.current) {
-      currentWeather.tempC = data.current.temperature_2m;
-      currentWeather.apparentTempC = data.current.apparent_temperature ?? data.current.temperature_2m;
-      currentWeather.precipitation = data.current.precipitation ?? 0;
-      currentWeather.windSpeed = data.current.wind_speed_10m ?? 0;
-      currentWeather.windDirDeg = data.current.wind_direction_10m ?? 0;
-      currentWeather.humidity = data.current.relative_humidity_2m ?? 0;
+  if (openData && openData.daily) {
+    forecastWeather = {
+      time: openData.daily.time,
+      tempMax: openData.daily.temperature_2m_max,
+      tempMin: openData.daily.temperature_2m_min,
+      rainProb: openData.daily.precipitation_probability_max,
+      windMax: openData.daily.wind_speed_10m_max,
+      sunrise: openData.daily.sunrise,
+      sunset: openData.daily.sunset
+    };
+  }
 
-      if (data.daily) {
-        forecastWeather = {
-          time: data.daily.time,
-          tempMax: data.daily.temperature_2m_max,
-          tempMin: data.daily.temperature_2m_min,
-          rainProb: data.daily.precipitation_probability_max,
-          windMax: data.daily.wind_speed_10m_max
-        };
+  // Detect if point is covered by NWS (US)
+  let points = null;
+  let inUS = false;
+  try {
+    const pointsUrl = `https://api.weather.gov/points/${latFull},${lonFull}`;
+    points = await tryFetchJson(pointsUrl, { headers: { 'Accept': 'application/geo+json' } });
+    const relLoc = points.properties && points.properties.relativeLocation && points.properties.relativeLocation.properties;
+    const stateName = relLoc && (relLoc.state || relLoc.stateCode || relLoc.state_name);
+    if (stateName) inUS = true;
+  } catch (e) {
+    inUS = false;
+  }
+
+  if (inUS) {
+    // US: don't display Open-Meteo current; show Loading... while NWS is fetched
+    lastWeatherSource = 'nws_pending';
+    lastWeatherCode = null;
+    lastNwsText = null;
+
+    currentWeather.tempC = null;
+    currentWeather.apparentTempC = null;
+    currentWeather.precipitation = 0;
+    currentWeather.windSpeed = 0;
+    currentWeather.windDirDeg = null;
+    currentWeather.humidity = 0;
+
+    const tempEl = document.getElementById('w-temp');
+    const feelsEl = document.getElementById('w-feels-like');
+    const precipEl = document.getElementById('w-precip');
+    const windEl = document.getElementById('w-wind');
+    const humidityEl = document.getElementById('w-humidity');
+    const iconEl = document.getElementById('w-icon');
+    if (tempEl) tempEl.innerText = `--°C`;
+    if (feelsEl) feelsEl.innerText = `--°C`;
+    if (precipEl) precipEl.innerText = `-- mm`;
+    if (windEl) windEl.innerText = `--`;
+    if (humidityEl) humidityEl.innerText = `--%`;
+    if (iconEl) iconEl.innerHTML = '';
+    setConditionTextWithEllipsis('Loading...');
+    updateSourceBadge();
+
+    // Try NWS observation
+    try {
+      const nws = await fetchNwsObservation(latFull, lonFull, points);
+      if (nws && typeof nws.tempC === 'number') {
+        let isNight = false;
+        if (nws.observedAt) {
+          try {
+            const dt = new Date(nws.observedAt);
+            const hr = dt.getHours();
+            if (hr < 6 || hr >= 19) isNight = true;
+          } catch (e) {
+            const nowH = new Date().getHours();
+            isNight = nowH < 6 || nowH >= 19;
+          }
+        } else {
+          const nowH = new Date().getHours();
+          isNight = nowH < 6 || nowH >= 19;
+        }
+
+        currentWeather.tempC = Number(nws.tempC);
+        currentWeather.apparentTempC = nws.apparentC != null ? Number(nws.apparentC) : currentWeather.tempC;
+        if (nws.precipitation != null) currentWeather.precipitation = nws.precipitation;
+        if (nws.windKmh != null) currentWeather.windSpeed = nws.windKmh;
+        if (nws.windDirDeg != null) currentWeather.windDirDeg = nws.windDirDeg;
+        if (nws.humidity != null) currentWeather.humidity = Math.round(nws.humidity);
+
+        lastWeatherSource = 'nws';
+        lastNwsText = nws.textDesc || 'Observation';
+        lastWeatherCode = null;
+        lastIsNight = isNight;
+
+        renderWeatherDisplay();
+        updateWindArrow();
+        updateIconAndConditionDisplay();
+        updateSourceBadge();
+        return;
+      } else {
+        throw new Error('NWS returned no usable observation');
       }
+    } catch (nwsErr) {
+      // NWS failed — show Unavailable for current, but keep forecasts/sun times (from Open-Meteo)
+      lastWeatherSource = 'nws_failed';
+      lastNwsText = null;
+      lastWeatherCode = null;
+      lastIsNight = false;
+      setConditionTextWithEllipsis('Unavailable');
+      updateSourceBadge(); // will show "Open-Meteo"
+      renderWeatherDisplay();
+      return;
+    }
+  }
 
-      const code = data.current.weather_code;
-      const isNight = data.current.is_day === 0;
+  // Not in US: use Open-Meteo for current + forecast
+  try {
+    if (openData && openData.current) {
+      currentWeather.tempC = openData.current.temperature_2m;
+      currentWeather.apparentTempC = openData.current.apparent_temperature ?? openData.current.temperature_2m;
+      currentWeather.precipitation = openData.current.precipitation ?? 0;
+      currentWeather.windSpeed = openData.current.wind_speed_10m ?? 0;
+      currentWeather.windDirDeg = openData.current.wind_direction_10m ?? 0;
+      currentWeather.humidity = Math.round(openData.current.relative_humidity_2m ?? 0);
+
+      const code = openData.current.weather_code;
+      const isNight = openData.current.is_day === 0;
+
+      lastWeatherSource = 'open-meteo';
+      lastWeatherCode = code;
+      lastIsNight = isNight;
+      lastNwsText = null;
 
       renderWeatherDisplay();
       updateWindArrow();
-
-      const info = getWeatherInfo(code, isNight);
-      document.getElementById('w-cond').innerText = info.text;
-      document.getElementById('w-icon').innerHTML = info.svg;
+      updateIconAndConditionDisplay();
+      updateSourceBadge();
+    } else {
+      lastWeatherSource = 'open-meteo';
+      lastWeatherCode = null;
+      setConditionTextWithEllipsis('Unavailable');
+      updateSourceBadge();
+      renderWeatherDisplay();
     }
-  } catch (error) {
-    document.getElementById('w-cond').innerText = "Unavailable";
+  } catch (e) {
+    setConditionTextWithEllipsis('Unavailable');
+    updateSourceBadge();
+    renderWeatherDisplay();
   }
 }
 
@@ -824,34 +1166,49 @@ function renderSparkline(elementId, dataObj, color, type, timeArray) {
 }
 
 function renderWeatherDisplay() {
-  if (currentWeather.tempC === null) return;
-
-  if (isImperial) {
-    const tempF = Math.round((currentWeather.tempC * 9 / 5) + 32);
-    const appTempF = Math.round((currentWeather.apparentTempC * 9 / 5) + 32);
-    document.getElementById('w-temp').innerText = `${tempF}°F`;
-    document.getElementById('w-feels-like').innerText = `${appTempF}°F`;
+  // If currentWeather.tempC is null, suppress Open-Meteo numeric display for current
+  if (currentWeather.tempC === null) {
+    // placeholders are set where appropriate
   } else {
-    document.getElementById('w-temp').innerText = `${currentWeather.tempC}°C`;
-    document.getElementById('w-feels-like').innerText = `${currentWeather.apparentTempC}°C`;
+    if (isImperial) {
+      const tempF = Math.round((currentWeather.tempC * 9 / 5) + 32);
+      const appTempF = Math.round((currentWeather.apparentTempC * 9 / 5) + 32);
+      document.getElementById('w-temp').innerText = `${tempF}°F`;
+      document.getElementById('w-feels-like').innerText = `${appTempF}°F`;
+    } else {
+      document.getElementById('w-temp').innerText = `${currentWeather.tempC}°C`;
+      document.getElementById('w-feels-like').innerText = `${currentWeather.apparentTempC}°C`;
+    }
+
+    if (isImperial) {
+      const precipIn = (currentWeather.precipitation / 25.4).toFixed(2);
+      document.getElementById('w-precip').innerText = `${precipIn} in`;
+    } else {
+      document.getElementById('w-precip').innerText = `${currentWeather.precipitation} mm`;
+    }
+
+    const windDirStr = getWindDirection(currentWeather.windDirDeg);
+    if (isImperial) {
+      const windMph = Math.round(currentWeather.windSpeed * 0.621371);
+      document.getElementById('w-wind').innerText = `${windMph} mph (${windDirStr})`;
+    } else {
+      document.getElementById('w-wind').innerText = `${currentWeather.windSpeed} km/h (${windDirStr})`;
+    }
+
+    document.getElementById('w-humidity').innerText = `${Math.round(currentWeather.humidity)}%`;
   }
 
-  if (isImperial) {
-    const precipIn = (currentWeather.precipitation / 25.4).toFixed(2);
-    document.getElementById('w-precip').innerText = `${precipIn} in`;
-  } else {
-    document.getElementById('w-precip').innerText = `${currentWeather.precipitation} mm`;
+  // Sunrise / Sunset
+  if (forecastWeather && forecastWeather.sunrise && forecastWeather.sunrise.length) {
+    const sunriseRaw = forecastWeather.sunrise[0] || '';
+    const sunsetRaw = forecastWeather.sunset[0] || '';
+    const sunriseTime = (typeof sunriseRaw === 'string' && sunriseRaw.includes('T')) ? sunriseRaw.split('T')[1].slice(0,5) : (sunriseRaw.slice(11,16) || '--:--');
+    const sunsetTime = (typeof sunsetRaw === 'string' && sunsetRaw.includes('T')) ? sunsetRaw.split('T')[1].slice(0,5) : (sunsetRaw.slice(11,16) || '--:--');
+    const sEl = document.getElementById('w-sunrise');
+    const ssEl = document.getElementById('w-sunset');
+    if (sEl) sEl.innerText = sunriseTime;
+    if (ssEl) ssEl.innerText = sunsetTime;
   }
-
-  const windDirStr = getWindDirection(currentWeather.windDirDeg);
-  if (isImperial) {
-    const windMph = Math.round(currentWeather.windSpeed * 0.621371);
-    document.getElementById('w-wind').innerText = `${windMph} mph (${windDirStr})`;
-  } else {
-    document.getElementById('w-wind').innerText = `${currentWeather.windSpeed} km/h (${windDirStr})`;
-  }
-
-  document.getElementById('w-humidity').innerText = `${currentWeather.humidity}%`;
 
   if (forecastWeather) {
     const timeArray = forecastWeather.time;
@@ -871,6 +1228,8 @@ function renderWeatherDisplay() {
     document.getElementById('lbl-temp').innerText = isImperial ? "Temp Range (°F)" : "Temp Range (°C)";
     document.getElementById('lbl-wind').innerText = isImperial ? "Max Wind (mph)" : "Max Wind (km/h)";
   }
+
+  updateIconAndConditionDisplay();
 }
 
 function updateWindArrow() {
@@ -902,9 +1261,7 @@ async function updateLocalTimezoneForCenter() {
   try {
     const response = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&timezone=auto&current=temperature_2m`);
     const data = await response.json();
-    if (data && data.timezone) {
-      currentTimezone = data.timezone;
-    }
+    if (data && data.timezone) currentTimezone = data.timezone;
   } catch (e) {}
 }
 
@@ -963,7 +1320,6 @@ function runClockTick() {
     if (hourHand) hourHand.setAttribute('transform', `rotate(${hourDeg}, 12, 12)`);
     if (minuteHand) minuteHand.setAttribute('transform', `rotate(${minuteDeg}, 12, 12)`);
     if (secondHand) secondHand.setAttribute('transform', `rotate(${secondDeg}, 12, 12)`);
-
   } catch (e) {}
 }
 

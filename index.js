@@ -391,6 +391,13 @@ function deleteBookmark(index) {
   renderBookmarksUI();
 }
 
+// Lock the style-selector button to its initial "Map Style" width so it
+// doesn't resize when the label switches to the active style name.
+const styleSelectorContainer = document.getElementById('style-selector-container');
+if (styleSelectorContainer) {
+  styleSelectorContainer.style.width = styleSelectorContainer.getBoundingClientRect().width + 'px';
+}
+
 document.querySelectorAll('.style-preview-item').forEach(item => {
   item.addEventListener('click', (e) => {
     e.stopPropagation();

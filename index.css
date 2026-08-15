@@ -31,6 +31,7 @@ html {
   display: inline-block;
   cursor: pointer;
   width: max-content;
+  box-sizing: border-box;
 }
 
 #style-selector-container::after {

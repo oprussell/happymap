@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenFreeMap Fullscreen - Native Geolocation &amp; Live Clock</title>
+
+    <!-- MapLibre GL CSS -->
+    <link href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="./index.css">
+  </head>
+
+  <body>
+
+    <div id="map"></div>
+
+    <div id="crosshair-container">
+      <svg id="crosshair-svg" viewBox="0 0 20 20">
+        <line x1="2" y1="10" x2="18" y2="10" stroke="#1f2937" stroke-width="2" stroke-linecap="round"></line>
+        <line x1="10" y1="2" x2="10" y2="18" stroke="#1f2937" stroke-width="2" stroke-linecap="round"></line>
+        <circle cx="10" cy="10" r="1" fill="#ffffff"></circle>
+      </svg>
+    </div>
+
+    <!-- Bookmarks Dropdown Control Panel -->
+    <div id="bookmarks-container">
+      <div class="bookmarks-header" id="bookmarks-header-text">
+        <span>Bookmarks</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="6 9 12 15 18 9"></polyline>
+        </svg>
+      </div>
+      <div id="bookmarks-previews-grid">
+        <div class="bookmark-item" data-index="0">
+          <div class="bookmark-map-thumb" id="bm-thumb-0">
+            <div class="bookmark-empty-state">+</div>
+          </div>
+          <div class="bookmark-options-trigger" title="Options"><svg viewBox="0 0 12 12" width="10" height="10" fill="currentColor">
+              <circle cx="6" cy="2" r="1.5"></circle>
+              <circle cx="6" cy="6" r="1.5"></circle>
+              <circle cx="6" cy="10" r="1.5"></circle>
+            </svg></div>
+          <div class="bookmark-options-wrapper">
+            <div class="bookmark-options-menu">
+              <div class="bookmark-menu-title" id="bm-menu-title-0">Slot 1</div>
+              <div class="bookmark-menu-actions"><button class="bookmark-menu-option replace">Replace with my location</button><button class="bookmark-menu-option delete">Delete bookmark</button></div>
+            </div>
+          </div>
+          <span class="bookmark-label" id="bm-label-0" title="Slot 1">Slot 1</span>
+        </div>
+        <div class="bookmark-item" data-index="1">
+          <div class="bookmark-map-thumb" id="bm-thumb-1">
+            <div class="bookmark-empty-state">+</div>
+          </div>
+          <div class="bookmark-options-trigger" title="Options"><svg viewBox="0 0 12 12" width="10" height="10" fill="currentColor">
+              <circle cx="6" cy="2" r="1.5"></circle>
+              <circle cx="6" cy="6" r="1.5"></circle>
+              <circle cx="6" cy="10" r="1.5"></circle>
+            </svg></div>
+          <div class="bookmark-options-wrapper">
+            <div class="bookmark-options-menu">
+              <div class="bookmark-menu-title" id="bm-menu-title-1">Slot 2</div>
+              <div class="bookmark-menu-actions"><button class="bookmark-menu-option replace">Replace with my location</button><button class="bookmark-menu-option delete">Delete bookmark</button></div>
+            </div>
+          </div>
+          <span class="bookmark-label" id="bm-label-1" title="Slot 2">Slot 2</span>
+        </div>
+        <div class="bookmark-item" data-index="2">
+          <div class="bookmark-map-thumb" id="bm-thumb-2">
+            <div class="bookmark-empty-state">+</div>
+          </div>
+          <div class="bookmark-options-trigger" title="Options"><svg viewBox="0 0 12 12" width="10" height="10" fill="currentColor">
+              <circle cx="6" cy="2" r="1.5"></circle>
+              <circle cx="6" cy="6" r="1.5"></circle>
+              <circle cx="6" cy="10" r="1.5"></circle>
+            </svg></div>
+          <div class="bookmark-options-wrapper">
+            <div class="bookmark-options-menu">
+              <div class="bookmark-menu-title" id="bm-menu-title-2">Slot 3</div>
+              <div class="bookmark-menu-actions"><button class="bookmark-menu-option replace">Replace with my location</button><button class="bookmark-menu-option delete">Delete bookmark</button></div>
+            </div>
+          </div>
+          <span class="bookmark-label" id="bm-label-2" title="Slot 3">Slot 3</span>
+        </div>
+        <div class="bookmark-item" data-index="3">
+          <div class="bookmark-map-thumb" id="bm-thumb-3">
+            <div class="bookmark-empty-state">+</div>
+          </div>
+          <div class="bookmark-options-trigger" title="Options"><svg viewBox="0 0 12 12" width="10" height="10" fill="currentColor">
+              <circle cx="6" cy="2" r="1.5"></circle>
+              <circle cx="6" cy="6" r="1.5"></circle>
+              <circle cx="6" cy="10" r="1.5"></circle>
+            </svg></div>
+          <div class="bookmark-options-wrapper">
+            <div class="bookmark-options-menu">
+              <div class="bookmark-menu-title" id="bm-menu-title-3">Slot 4</div>
+              <div class="bookmark-menu-actions"><button class="bookmark-menu-option replace">Replace with my location</button><button class="bookmark-menu-option delete">Delete bookmark</button></div>
+            </div>
+          </div>
+          <span class="bookmark-label" id="bm-label-3" title="Slot 4">Slot 4</span>
+        </div>
+        <div class="bookmark-item" data-index="4">
+          <div class="bookmark-map-thumb" id="bm-thumb-4">
+            <div class="bookmark-empty-state">+</div>
+          </div>
+          <div class="bookmark-options-trigger" title="Options"><svg viewBox="0 0 12 12" width="10" height="10" fill="currentColor">
+              <circle cx="6" cy="2" r="1.5"></circle>
+              <circle cx="6" cy="6" r="1.5"></circle>
+              <circle cx="6" cy="10" r="1.5"></circle>
+            </svg></div>
+          <div class="bookmark-options-wrapper">
+            <div class="bookmark-options-menu">
+              <div class="bookmark-menu-title" id="bm-menu-title-4">Slot 5</div>
+              <div class="bookmark-menu-actions"><button class="bookmark-menu-option replace">Replace with my location</button><button class="bookmark-menu-option delete">Delete bookmark</button></div>
+            </div>
+          </div>
+          <span class="bookmark-label" id="bm-label-4" title="Slot 5">Slot 5</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Style Selector Control Panel -->
+    <div id="style-selector-container">
+      <div class="style-selector-header" id="style-header-text">
+        <span>Map Style</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="6 9 12 15 18 9"></polyline>
+        </svg>
+      </div>
+      <div id="style-previews-grid">
+        <div class="style-preview-item active" data-style="https://tiles.openfreemap.org/styles/liberty" data-name="Liberty">
+          <div class="preview-map-thumb" id="thumb-liberty"></div>
+          <span class="preview-label">Liberty</span>
+        </div>
+        <div class="style-preview-item" data-style="https://tiles.openfreemap.org/styles/bright" data-name="Bright">
+          <div class="preview-map-thumb" id="thumb-bright"></div>
+          <span class="preview-label">Bright</span>
+        </div>
+        <div class="style-preview-item" data-style="https://tiles.openfreemap.org/styles/positron" data-name="Positron">
+          <div class="preview-map-thumb" id="thumb-positron"></div>
+          <span class="preview-label">Positron</span>
+        </div>
+        <div class="style-preview-item" data-style="https://tiles.openfreemap.org/styles/dark" data-name="Dark">
+          <div class="preview-map-thumb" id="thumb-dark"></div>
+          <span class="preview-label">Dark</span>
+        </div>
+        <div class="style-preview-item" data-style="https://tiles.openfreemap.org/styles/fiord" data-name="Fiord">
+          <div class="preview-map-thumb" id="thumb-fiord"></div>
+          <span class="preview-label">Fiord</span>
+        </div>
+      </div>
+    </div>
+
+    <div id="crosshair-toggle" class="active">Crosshair: ON</div>
+
+    <div id="weather-widget">
+      <div class="weather-primary-row">
+        <div class="weather-icon-container" id="w-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="4"></circle>
+            <path d="M12 2v2"></path>
+            <path d="M12 20v2"></path>
+            <path d="M4.93 4.93l1.41 1.41"></path>
+            <path d="M17.66 17.66l1.41 1.41"></path>
+            <path d="M2 12h2"></path>
+            <path d="M20 12h2"></path>
+            <path d="M6.34 17.66l-1.41 1.41"></path>
+            <path d="M19.07 4.93l-1.41 1.41"></path>
+          </svg>
+        </div>
+        <div class="weather-info">
+          <span class="weather-title">Live Weather</span>
+          <div class="weather-main">
+            <span class="weather-temp" id="w-temp">--°C</span>
+            <span class="weather-condition" id="w-cond">Loading...</span>
+          </div>
+        </div>
+      </div>
+      <div class="weather-details" id="w-details">
+        <div class="weather-detail-item">
+          <span class="weather-detail-label">Feels Like</span>
+          <span class="weather-detail-value" id="w-feels-like">--°C</span>
+        </div>
+        <div class="weather-detail-item">
+          <span class="weather-detail-label">Precipitation</span>
+          <span class="weather-detail-value" id="w-precip">-- mm</span>
+        </div>
+        <div class="weather-detail-item">
+          <span class="weather-detail-label">Wind</span>
+          <div class="weather-detail-value-group">
+            <span class="weather-detail-value" id="w-wind">-- km/h</span>
+            <div id="w-wind-arrow">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="19" x2="12" y2="5"></line>
+                <polyline points="5 12 12 5 19 12"></polyline>
+              </svg>
+            </div>
+          </div>
+        </div>
+        <div class="weather-detail-item">
+          <span class="weather-detail-label">Humidity</span>
+          <span class="weather-detail-value" id="w-humidity">--%</span>
+        </div>
+
+        <div class="weather-graphs">
+          <div class="weather-graph-title">16-Day Forecast</div>
+
+          <div class="weather-graph-container">
+            <span class="weather-graph-label" id="lbl-temp">Temp Range (°C)</span>
+            <div id="graph-temp" class="svg-graph"></div>
+          </div>
+
+          <div class="weather-graph-container">
+            <span class="weather-graph-label">Rain Chance (%)</span>
+            <div id="graph-rain" class="svg-graph"></div>
+          </div>
+
+          <div class="weather-graph-container">
+            <span class="weather-graph-label" id="lbl-wind">Max Wind (km/h)</span>
+            <div id="graph-wind" class="svg-graph"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Local Time Widget Display in Bottom Right -->
+    <div id="time-widget">
+      <div class="time-icon-container">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line id="clock-hour-hand" x1="12" y1="12" x2="12" y2="7" stroke="currentColor" stroke-width="2" stroke-linecap="round"></line>
+          <line id="clock-minute-hand" x1="12" y1="12" x2="12" y2="4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></line>
+          <line id="clock-second-hand" x1="12" y1="12" x2="12" y2="3.5" stroke="#ef4444" stroke-width="1" stroke-linecap="round"></line>
+          <circle cx="12" cy="12" r="1" fill="currentColor"></circle>
+        </svg>
+      </div>
+      <div class="time-info">
+        <span class="time-title">Local Time</span>
+        <span class="time-digital" id="local-time-display">--:--:--</span>
+      </div>
+    </div>
+
+    <!-- MapLibre GL JS -->
+    <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+
+    <script src="./index.js"></script>
+  </body>
+</html>

@@ -447,14 +447,15 @@ crosshairToggle.addEventListener('click', () => {
 });
 
 const weatherSVGs = {
-  sun: `<svg viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2"></path><path d="M12 20v2"></path><path d="M4.93 4.93l1.41 1.41"></path><path d="M17.66 17.66l1.41 1.41"></path><path d="M2 12h2"></path><path d="M20 12h2"></path><path d="M6.34 17.66l-1.41 1.41"></path><path d="M19.07 4.93l-1.41 1.41"></path></svg>`,
-  sunCloud: `<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="9" r="3" stroke="#f59e0b" fill="#f59e0b" fill-opacity="0.25"></circle><path d="M17 14h-1.12a5 5 0 1 0-8.76 2.5H17a3 3 0 0 0 0-6z" fill="#9ca3af" fill-opacity="0.3" stroke="#6b7280"></path></svg>`,
-  cloud: `<svg viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z" fill="#9ca3af" fill-opacity="0.3"></path></svg>`,
-  fog: `<svg viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10h16"></path><path d="M6 14h12"></path><path d="M8 18h8"></path><path d="M5 6h14"></path></svg>`,
-  rain: `<svg viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 9h-1.26A8 8 0 1 0 9 19h9a5 5 0 0 0 0-10z" fill="#9ca3af" fill-opacity="0.3" stroke="#6b7280"></path><rect x="8" y="20" width="1.5" height="3" rx="0.75" fill="#3b82f6" stroke="none"></rect><rect x="12" y="20" width="1.5" height="3" rx="0.75" fill="#3b82f6" stroke="none"></rect><rect x="16" y="20" width="1.5" height="3" rx="0.75" fill="#3b82f6" stroke="none"></rect></svg>`,
-  snow: `<svg viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z" fill="#e0f2fe" fill-opacity="0.4"></path><path d="M10 22v-2"></path><path d="M14 22v-2"></path></svg>`,
-  thunder: `<svg viewBox="0 0 24 24" fill="none" stroke="#eab308" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z" fill="#fef08a" fill-opacity="0.3"></path><polyline points="13 11 9 17 15 17 11 23" fill="#eab308"></polyline></svg>`,
-  moon: `<svg viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" fill="#ede9fe" fill-opacity="0.5"></path></svg>`
+  sun: `<svg viewBox="0 0 24 24" fill="none"><path fill="#ffc905" d="M11 1a1 1 0 1 1 2 0v2a1 1 0 1 1-2 0z"></path><path fill="#ffc905" fill-rule="evenodd" clip-rule="evenodd" d="M18 12a6 6 0 1 1-12 0 6 6 0 0 1 12 0m-9.938 0a3.938 3.938 0 1 0 7.876 0 3.938 3.938 0 0 0-7.876 0"></path><path fill="#ffc905" d="M20.485 3.515a1 1 0 0 0-1.414 0l-1.414 1.414a1 1 0 0 0 1.414 1.414l1.414-1.414a1 1 0 0 0 0-1.414M1 13a1 1 0 1 1 0-2h2a1 1 0 1 1 0 2zm2.515-9.485a1 1 0 0 0 0 1.414l1.414 1.414A1 1 0 0 0 6.343 4.93L4.93 3.515a1 1 0 0 0-1.414 0M11 21a1 1 0 1 1 2 0v2a1 1 0 1 1-2 0zm-4.657-3.343a1 1 0 0 0-1.414 0L3.515 19.07a1 1 0 1 0 1.414 1.414l1.414-1.414a1 1 0 0 0 0-1.414M21 13a1 1 0 1 1 0-2h2a1 1 0 1 1 0 2zm-3.343 4.657a1 1 0 0 0 0 1.414l1.414 1.414a1 1 0 0 0 1.414-1.414l-1.414-1.414a1 1 0 0 0-1.414 0"></path></svg>`,
+  sunCloud: `<svg viewBox="0 0 24 24" fill="none" stroke="#ffc905" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.417 18a3.75 3.75 0 1 1 1.009-7.363 5.001 5.001 0 0 1 9.342 1.55A2.917 2.917 0 0 1 16.417 18z"></path><path stroke-linecap="butt" d="M18.034 12.832A4 4 0 0 0 20.882 9 4 4 0 0 0 13 8.032"></path></svg>`,
+  cloud: `<svg viewBox="0 0 24 24" fill="none" stroke="#8f8f8f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10c0 3.866 3.022 7 6.75 7h7.5c2.071 0 3.75-1.741 3.75-3.889s-1.679-3.889-3.75-3.889c-.42 0-.815-.284-.9-.695C15.698 5.368 12.99 3 9.75 3 6.022 3 3 6.134 3 10Z"></path></svg>`,
+  cloudNight: `<svg viewBox="0 0 24 24" fill="none" stroke="#ad5cff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11.654 5.618A8.97 8.97 0 0 1 18 3c.983 0 1.93.156 2.815.448A10 10 0 0 0 16 12a10 10 0 0 0 4.813 8.552c-.885.29-1.83.448-2.813.448-1.85 0-3.57-.558-5-1.516M5.7 16C4.209 16 3 14.802 3 13.325c0-1.225.9-2.356 2.25-2.575C5.673 9.743 6.676 9 7.845 9a2.8 2.8 0 0 1 2.805 2.625c.795.347 1.35 1.2 1.35 2.123A2.25 2.25 0 0 1 9.75 16z"></path></svg>`,
+  fog: `<svg viewBox="0 0 24 24" fill="none" stroke="#8f8f8f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M3 14h18M6 10h12M6 18h12"></path></svg>`,
+  rain: `<svg viewBox="0 0 24 24" fill="none" stroke="#427bff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.271 16C4.311 14.775 3 12.546 3 10c0-3.866 3.022-7 6.75-7 3.24 0 5.948 2.368 6.6 5.527.085.41.48.695.9.695v0c2.071 0 3.75 1.741 3.75 3.89A3.94 3.94 0 0 1 19.76 16"></path><path d="M10 15v5m3-5v6m3-6v5"></path></svg>`,
+  snow: `<svg viewBox="0 0 24 24" fill="none" stroke="#8f8f8f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.271 16C4.311 14.775 3 12.546 3 10c0-3.866 3.022-7 6.75-7 3.24 0 5.948 2.368 6.6 5.527.085.41.48.695.9.695v0c2.071 0 3.75 1.741 3.75 3.89A3.94 3.94 0 0 1 19.76 16"></path><path d="M10 17.03V17m0-2.97V14m6 3.03V17m0-2.97V14m-3 4.03V18m0-2.97V15m-3 5.03V20m6 .03V20m-3 1.03V21"></path></svg>`,
+  thunder: `<svg viewBox="0 0 24 24" fill="none" stroke="#ffc905" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.271 16C4.311 14.775 3 12.546 3 10c0-3.866 3.022-7 6.75-7 3.24 0 5.948 2.368 6.6 5.527.085.41.48.695.9.695v0c2.071 0 3.75 1.741 3.75 3.89A3.94 3.94 0 0 1 19.76 16"></path><path d="m13 13-1.869 3.738v0a.18.18 0 0 0 .162.262h3.416c.134 0 .22.14.16.26v0L13 21"></path></svg>`,
+  moon: `<svg viewBox="0 0 24 24" fill="none" stroke="#ad5cff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 6V3m5.5 9V7m-4-2.5h-3m9.5 5h-5m-.445 7.315a8.3 8.3 0 0 0 3.445-.74A8.37 8.37 0 1 1 7.925 5a8.37 8.37 0 0 0 7.63 11.815"></path></svg>`
 };
 
 function getWeatherInfo(code, isNight = false) {
@@ -464,11 +465,11 @@ function getWeatherInfo(code, isNight = false) {
   };
   if (code === 1 || code === 2) return {
     text: "Partly cloudy",
-    svg: weatherSVGs.sunCloud
+    svg: isNight ? weatherSVGs.cloudNight : weatherSVGs.sunCloud
   };
   if (code === 3) return {
     text: "Overcast",
-    svg: weatherSVGs.cloud
+    svg: isNight ? weatherSVGs.cloudNight : weatherSVGs.cloud
   };
   if (code === 45 || code === 48) return {
     text: "Foggy",

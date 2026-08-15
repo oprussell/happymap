@@ -1,11 +1,18 @@
-body,
-html {
+html,
+body {
   margin: 0;
   padding: 0;
   width: 100%;
   height: 100%;
   overflow: hidden;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-family:
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    Helvetica,
+    Arial,
+    sans-serif;
 }
 
 #map {
@@ -35,7 +42,7 @@ html {
 }
 
 #style-selector-container::after {
-  content: '';
+  content: "";
   position: absolute;
   top: 100%;
   left: 0;
@@ -80,7 +87,10 @@ html {
   opacity: 0;
   overflow: hidden;
   pointer-events: none;
-  transition: max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s ease, padding 0.2s ease;
+  transition:
+    max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 0.2s ease,
+    padding 0.2s ease;
   display: flex;
   gap: 8px;
   width: max-content;
@@ -133,7 +143,7 @@ html {
   color: #1d4ed8;
 }
 
-/* Bookmarks Control Panel (Placed left of Style Selector) */
+/* Bookmarks Control Panel */
 #bookmarks-container {
   position: absolute;
   top: 8px;
@@ -151,7 +161,7 @@ html {
 }
 
 #bookmarks-container::after {
-  content: '';
+  content: "";
   position: absolute;
   top: 100%;
   left: 0;
@@ -196,7 +206,10 @@ html {
   opacity: 0;
   overflow: visible;
   pointer-events: none;
-  transition: max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s ease, padding 0.2s ease;
+  transition:
+    max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 0.2s ease,
+    padding 0.2s ease;
   display: flex;
   gap: 8px;
   width: max-content;
@@ -290,10 +303,19 @@ html {
 }
 
 .bookmark-options-menu {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-family:
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    Helvetica,
+    Arial,
+    sans-serif;
   background: #ffffff;
   border-radius: 8px;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15), 0 2px 6px rgba(0, 0, 0, 0.1);
+  box-shadow:
+    0 6px 20px rgba(0, 0, 0, 0.15),
+    0 2px 6px rgba(0, 0, 0, 0.1);
   border: 1px solid rgba(229, 231, 235, 0.8);
   display: flex;
   flex-direction: column;
@@ -317,7 +339,14 @@ html {
 }
 
 .bookmark-menu-title {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-family:
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    Helvetica,
+    Arial,
+    sans-serif;
   padding: 6px 8px;
   font-size: 11px;
   font-weight: 700;
@@ -335,7 +364,14 @@ html {
 }
 
 .bookmark-menu-option {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-family:
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    Helvetica,
+    Arial,
+    sans-serif;
   padding: 7px 10px;
   font-size: 11px;
   font-weight: 500;
@@ -347,7 +383,9 @@ html {
   border-radius: 4px;
   cursor: pointer;
   width: 100%;
-  transition: background 0.1s ease, color 0.1s ease;
+  transition:
+    background 0.1s ease,
+    color 0.1s ease;
 }
 
 .bookmark-menu-option:hover {
@@ -375,6 +413,7 @@ html {
   text-align: center;
 }
 
+/* Crosshair */
 #crosshair-container {
   position: absolute;
   top: 50%;
@@ -415,7 +454,9 @@ html {
   color: #4b5563;
   cursor: pointer;
   user-select: none;
-  transition: background 0.15s ease, color 0.15s ease;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
 }
 
 #crosshair-toggle:hover {
@@ -429,7 +470,7 @@ html {
   border-color: #c7d2fe;
 }
 
-/* Enhanced Weather Widget */
+/* Weather Widget */
 #weather-widget {
   position: absolute;
   bottom: 8px;
@@ -442,10 +483,14 @@ html {
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
   display: flex;
   flex-direction: column;
-  gap: 0px;
+  gap: 0;
   cursor: pointer;
   user-select: none;
-  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.15s ease, background 0.2s ease, padding 0.2s ease;
+  transition:
+    width 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    transform 0.15s ease,
+    background 0.2s ease,
+    padding 0.2s ease;
   border: 1px solid rgba(255, 255, 255, 0.4);
   min-width: 175px;
   width: 175px;
@@ -516,12 +561,15 @@ html {
   max-height: 0;
   opacity: 0;
   overflow: hidden;
-  transition: max-height 0.4s ease-out, opacity 0.3s ease-out, margin-top 0.3s ease-out;
+  transition:
+    max-height 0.4s ease-out,
+    opacity 0.3s ease-out,
+    margin-top 0.3s ease-out;
   display: flex;
   flex-direction: column;
   gap: 6px;
   border-top: 1px solid transparent;
-  margin-top: 0px;
+  margin-top: 0;
 }
 
 #weather-widget:hover .weather-details {
@@ -556,6 +604,26 @@ html {
   color: #1f2937;
 }
 
+.weather-time-label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.weather-time-icon {
+  width: 17px;
+  height: 17px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.weather-time-icon svg {
+  width: 17px;
+  height: 17px;
+}
+
 #w-wind-arrow {
   width: 12px;
   height: 12px;
@@ -563,7 +631,12 @@ html {
   transition: transform 0.1s linear;
 }
 
-/* Weather Graphs Specific CSS */
+#w-wind-arrow svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* Weather Graphs */
 .weather-graphs {
   display: flex;
   flex-direction: column;
@@ -599,6 +672,7 @@ html {
   height: 65px;
 }
 
+/* Local Time Widget */
 #time-widget {
   position: absolute;
   bottom: 40px;
@@ -615,7 +689,9 @@ html {
   user-select: none;
   border: 1px solid rgba(255, 255, 255, 0.4);
   cursor: pointer;
-  transition: transform 0.15s ease, background 0.2s ease;
+  transition:
+    transform 0.15s ease,
+    background 0.2s ease;
 }
 
 #time-widget:hover {

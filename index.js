@@ -318,6 +318,76 @@ window.addEventListener('click', () => {
   document.querySelectorAll('.bookmark-item').forEach(i => i.classList.remove('menu-open'));
 });
 
+document.addEventListener('keydown', (e) => {
+  if (!map) return;
+  const target = e.target;
+  const isTyping = target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable);
+  if (isTyping || e.metaKey || e.ctrlKey || e.altKey) return;
+
+  if (e.key === 'n' || e.key === 'N' || e.key === 'q' || e.key === 'Q') {
+    map.resetNorth();
+    return;
+  }
+
+  if (e.key === 'e' || e.key === 'E') {
+    map.easeTo({ bearing: 90 });
+    return;
+  }
+
+  if (e.key === 's' || e.key === 'S') {
+    map.easeTo({ bearing: 180 });
+    return;
+  }
+
+  if (e.key === 'w' || e.key === 'W') {
+    map.easeTo({ bearing: 270 });
+    return;
+  }
+
+  if (e.key === 'r' || e.key === 'R') {
+    map.easeTo({ pitch: 0 });
+    return;
+  }
+
+  if (e.key === 'x' || e.key === 'X') {
+    map.easeTo({ bearing: map.getBearing() + 45 });
+    return;
+  }
+
+  if (e.key === 'z' || e.key === 'Z') {
+    map.easeTo({ bearing: map.getBearing() - 45 });
+    return;
+  }
+
+  if (e.key === '.') {
+    map.zoomIn();
+    return;
+  }
+
+  if (e.key === ',') {
+    map.zoomOut();
+    return;
+  }
+
+  if (e.key >= '1' && e.key <= '5') {
+    const index = parseInt(e.key, 10) - 1;
+    const bm = bookmarks[index];
+    if (bm) {
+      map.easeTo({
+        center: [bm.lng, bm.lat],
+        zoom: bm.zoom || 15,
+        duration: 1000
+      });
+    }
+    return;
+  }
+
+  const saveKeyToIndex = { '6': 0, '7': 1, '8': 2, '9': 3, '0': 4 };
+  if (e.key in saveKeyToIndex) {
+    saveCurrentToBookmark(saveKeyToIndex[e.key]);
+  }
+});
+
 async function saveCurrentToBookmark(index) {
   if (!map) return;
   const center = map.getCenter();

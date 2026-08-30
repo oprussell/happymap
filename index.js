@@ -1248,6 +1248,44 @@ document.getElementById('weather-widget').addEventListener('click', () => {
   renderWeatherDisplay();
 });
 
+/* Search Widget — geocode a typed location and fly the map there.
+ * Basic implementation: takes the first Nominatim match, no
+ * autocomplete or disambiguation of multiple/ambiguous results.
+ */
+const searchContainer = document.getElementById('search-container');
+const searchInput = document.getElementById('search-input');
+
+async function flyToSearchResult(query) {
+  if (!query || !query.trim() || !map) return;
+
+  searchContainer.classList.add('searching');
+  try {
+    const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query.trim())}&limit=1`;
+    const res = await fetch(url);
+    const data = await res.json();
+
+    if (data && data.length) {
+      const { lat, lon } = data[0];
+      map.flyTo({
+        center: [parseFloat(lon), parseFloat(lat)],
+        zoom: 15,
+        duration: 2000
+      });
+    }
+  } catch (e) {
+    // silently fail — basic implementation, no error UI yet
+  } finally {
+    searchContainer.classList.remove('searching');
+  }
+}
+
+searchInput.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') {
+    flyToSearchResult(searchInput.value);
+    searchInput.blur();
+  }
+});
+
 let currentTimezone = 'America/New_York';
 let is12HourFormat = false;
 let timeInterval = null;
